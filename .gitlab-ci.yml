@@ -10,7 +10,7 @@ before_script:
   - poetry --version
   - poetry config virtualenvs.in-project true
   - poetry install -vv
-  - postry shell
+  - poetry shell
 
 test:
   script:
