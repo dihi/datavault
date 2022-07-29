@@ -5,7 +5,7 @@
 
 # Official language image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/python/tags/
-image: bitnami/python:latest
+image: python:latest
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
@@ -19,25 +19,15 @@ variables:
 # them in a virtualenv and cache it as well.
 cache:
   paths:
-    - .cache/pip
-    - venv/
+    - .venv/
 
 before_script:
   - python --version  # For debugging
   - pip install poetry
-  - poetry install
-  - poetry shell
+  - poetry --version
+  - poetry config settings.virtualenvs.in-project true
+  - poetry install -vv
 
 test:
   script:
     - pytest
-
-run:
-  script:
-    - python setup.py bdist_wheel
-    # an alternative approach is to install and run:
-    - pip install dist/*
-    # run the command here
-  artifacts:
-    paths:
-      - dist/*.whl
