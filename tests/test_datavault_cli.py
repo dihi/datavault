@@ -1,12 +1,11 @@
 import os
-import pytest
-from pathlib import Path
 import tempfile
+from pathlib import Path
+
+import pytest
 from click.testing import CliRunner
 
-from datavault import __version__
-from datavault import cli
-from datavault import DataVault
+from datavault import DataVault, __version__, cli
 
 DATAVAULT_SECRET = DataVault.generate_secret()
 
@@ -29,14 +28,14 @@ def test_cli_version():
 def test_cli_new(stub_secret):
     path = str(Path(tempfile.mkdtemp()) / "vault")
     runner = CliRunner()
-    result = runner.invoke(cli.main, ["new", path], catch_exceptions=False)
+    result = runner.invoke(cli.main, ["new", path, "-f"], catch_exceptions=False)
     assert result.exit_code == 0
     assert result.output.find(DATAVAULT_SECRET) > 0
     assert DataVault(path).exists()
 
     # Attempt to create second data vault at same path
     # which should fail
-    result = runner.invoke(cli.main, ["new", path])
+    result = runner.invoke(cli.main, ["new", path, "-f"])
     assert result.exit_code == 1
 
 
@@ -58,7 +57,7 @@ def test_cli_encrypt_decrypt():
 
     path = str(Path(tempfile.mkdtemp()) / "vault")
     runner = CliRunner()
-    result = runner.invoke(cli.main, ["new", path])
+    result = runner.invoke(cli.main, ["new", path, "-f"])
     assert result.exit_code == 0
 
     vault = DataVault(path)
@@ -196,7 +195,7 @@ def test_clearing():
 
     path = str(Path(tempfile.mkdtemp()) / "vault")
     runner = CliRunner()
-    result = runner.invoke(cli.main, ["new", path])
+    result = runner.invoke(cli.main, ["new", path, "-f"])
     assert result.exit_code == 0
 
     vault = DataVault(path)

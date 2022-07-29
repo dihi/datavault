@@ -1,15 +1,12 @@
-from dataclasses import dataclass
-from gc import is_finalized
 import os
-from pathlib import Path
 import textwrap
+from pathlib import Path
+
 import click
-from regex import D
-
-from datavault import DataVault, __version__
-
 import colorama
 from colorama import Fore
+
+from datavault import DataVault, __version__
 
 colorama.init()
 

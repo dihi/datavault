@@ -1,10 +1,11 @@
-import pytest
-from pathlib import Path
 import tempfile
+from pathlib import Path
+
+import pytest
+
 from datavault import DataVault
 
 DATAVAULT_SECRET = DataVault.generate_secret()
-
 
 @pytest.fixture
 def stub_secret(monkeypatch):

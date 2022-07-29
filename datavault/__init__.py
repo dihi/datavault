@@ -1,11 +1,12 @@
-from fnmatch import fnmatch
 import hashlib
 import json
 import os
-from pathlib import Path
 import struct
 import textwrap
-from typing import Union, TypedDict
+from fnmatch import fnmatch
+from pathlib import Path
+from typing import TypedDict, Union
+
 import cryptography
 from cryptography.fernet import Fernet
 
