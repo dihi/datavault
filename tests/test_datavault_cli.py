@@ -219,7 +219,7 @@ def test_clearing():
     assert vault.has_changes()
     changes = vault.changes()
     assert changes["total"] == 2
-    assert changes["additions"] == ["test1.txt", "test2.txt"]
+    assert list(sorted(changes["additions"])) == ["test1.txt", "test2.txt"]
     assert changes["deletions"] == []
     assert changes["updates"] == []
 
@@ -247,7 +247,7 @@ def test_clearing():
     changes = vault.changes()
 
     assert changes["total"] == 2
-    assert changes["deletions"] == ["test1.txt", "test2.txt"]
+    assert list(sorted(changes["deletions"])) == ["test1.txt", "test2.txt"]
 
     result = runner.invoke(
         cli.main, ["clear-encrypted", path, "--force"], env={"DATAVAULT_SECRET": DATAVAULT_SECRET}
