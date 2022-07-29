@@ -10,11 +10,10 @@ before_script:
   - poetry --version
   - poetry config virtualenvs.in-project true
   - poetry install -vv
-  - poetry shell
 
 test:
   script:
-    - pytest
+    - poetry run pytest
 
   tags:
     - docker
