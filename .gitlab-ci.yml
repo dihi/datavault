@@ -10,6 +10,7 @@ before_script:
   - poetry --version
   - poetry config virtualenvs.in-project true
   - poetry install -vv
+  - postry shell
 
 test:
   script:
@@ -18,3 +19,13 @@ test:
   tags:
     - docker
     - dihi
+
+# deploy:
+#   script:
+#     - poetry build
+#     - poetry config repositories.gitlab "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/packages/pypi"
+#     - poetry config http-basic.gitlab gitlab-ci-token "$CI_JOB_TOKEN"
+#     - poetry publish --repository gitlab
+#   tags:
+#     - docker
+#     - dihi
