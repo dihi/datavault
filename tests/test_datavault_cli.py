@@ -81,7 +81,7 @@ def test_cli_encrypt_decrypt():
     assert vault.has_changes()
     changes = vault.changes()
     assert changes["total"] == 2
-    assert changes["additions"] == ["test1.txt", "test2.txt"]
+    assert list(sorted(changes["additions"])) == ["test1.txt", "test2.txt"]
     assert changes["deletions"] == []
     assert changes["updates"] == []
 
