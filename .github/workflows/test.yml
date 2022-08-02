@@ -2,12 +2,15 @@ name: Test
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches: [ main ]
   pull_request:
-    branches: [ $default-branch ]
+    branches: [ '**' ]
+
+permissions:
+  contents: read
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -28,4 +31,4 @@ jobs:
         poetry install -vv
     - name: Test with pytest
       run: |
-        Poetry run pytest
+        poetry run pytest
