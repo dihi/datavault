@@ -23,15 +23,3 @@ test:
   tags:
     - docker
     - dihi
-
-deploy:
-  stage: deploy
-  script:
-    - poetry build
-    - poetry config repositories.gitlab "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/packages/pypi"
-    - poetry config http-basic.gitlab gitlab-ci-token "$CI_JOB_TOKEN"
-    - poetry publish --repository gitlab
-  when: manual
-  tags:
-    - docker
-    - dihi
