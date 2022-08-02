@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "datavault"
 version = "1.0.0"
-description = ""
+description = "Store encrypted files in your repository securely"
 authors = ["Faraz Yashar <fny@duke.edu>"]
 
 [tool.poetry.dependencies]
