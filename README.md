@@ -1,5 +1,8 @@
 # Data Vault 🔒
 
+[![PyPI version](https://badge.fury.io/py/datavault.svg)](https://badge.fury.io/py/datavault)
+[![Test](https://github.com/dihi/datavault/actions/workflows/test.yml/badge.svg)](https://github.com/dihi/datavault/actions/workflows/test.yml)
+
 Sometimes you'd like to store encrypted files in your repository securely.
 This package helps with that.
 
