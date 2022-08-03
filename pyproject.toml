@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dihi-datavault"
-version = "1.0.0"
+version = "0.0.1"
 description = "Store encrypted files in your repository securely"
 authors = ["Faraz Yashar <fny@duke.edu>"]
 
