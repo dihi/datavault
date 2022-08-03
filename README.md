@@ -6,6 +6,14 @@
 Sometimes you'd like to store encrypted files in your repository securely.
 This package helps with that.
 
+## Installation
+
+Pick your poison:
+
+ - `pip install dihi_datavault` then `datavault`
+ - `poetry add dihi_datavault` then `poetry run datavault`
+ - `pipx install dihi_datavault` then `pipx run datavault`
+
 ## Usage
 
 ```bash
