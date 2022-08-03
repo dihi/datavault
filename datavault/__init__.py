@@ -2,13 +2,19 @@ import hashlib
 import json
 import os
 import struct
+import sys
 import textwrap
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import TypedDict, Union
+from typing import Dict, List, Union
 
 import cryptography
 from cryptography.fernet import Fernet
+
+if sys.version_info < (3, 8):
+    TypedDict = dict
+else: 
+    from typing import TypedDict
 
 __version__ = "1.0.0"
 
@@ -60,7 +66,6 @@ def decrypt(key: str, fin: Union[str, Path], fout: Union[str, Path]):
             dec = fernet.decrypt(chunk)
             fo.write(dec)
 
-
 class VaultManifest(TypedDict):
     """
     A VaultManifest is a dictionary of files and their hashes.
@@ -71,15 +76,15 @@ class VaultManifest(TypedDict):
     # The version of the manifest, used for backwards compatibility
     version: str
     # The list of file hashes in the vault
-    files: dict[str, str]
+    files: Dict[str, str]
 
 
 class VaultChangeSet(TypedDict):
     total: int
-    additions: list[str]
-    deletions: list[str]
-    updates: list[str]
-    unchanged: list[str]
+    additions: List[str]
+    deletions: List[str]
+    updates: List[str]
+    unchanged: List[str]
 
 
 #
@@ -93,7 +98,7 @@ class DataVault:
     ENCRYPTED_NAMESPACE = ".encrypted"
 
     @staticmethod
-    def find_all(path: Union[str, Path]) -> list["DataVault"]:
+    def find_all(path: Union[str, Path]) -> List["DataVault"]:
         """
         Returns a list of all vaults in the given path.
         """
@@ -204,7 +209,7 @@ class DataVault:
         except:
             return False
 
-    def files(self) -> list[str]:
+    def files(self) -> List[str]:
         """
         Returns a list of all files in the vault recursively.
         """
@@ -291,7 +296,7 @@ class DataVault:
         """
         return self.changes()["total"] > 0
 
-    def additions(self) -> list[str]:
+    def additions(self) -> List[str]:
         """
         Returns a list of files that are in the decrypted directory but not
         in the vault manifest.
@@ -299,14 +304,14 @@ class DataVault:
         manifest_files = set(self.manifest()["files"])
         return [f for f in self.files() if f not in manifest_files]
 
-    def deletions(self) -> list[str]:
+    def deletions(self) -> List[str]:
         """
         Returns a list of files that are in the vault manifest but not in
         the decrypted directory.
         """
         return [f for f in self.manifest()["files"] if f not in self.files()]
 
-    def updates(self) -> list[str]:
+    def updates(self) -> List[str]:
         """
         Returns a list of files that have changed since the last encryption.
 
