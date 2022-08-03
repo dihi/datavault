@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from datavault import DataVault, __version__, cli
+from dihi_datavault import DataVault, __version__, cli
 
 DATAVAULT_SECRET = DataVault.generate_secret()
 

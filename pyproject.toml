@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "datavault"
+name = "dihi-datavault"
 version = "1.0.0"
 description = "Store encrypted files in your repository securely"
 authors = ["Faraz Yashar <fny@duke.edu>"]
@@ -14,7 +14,7 @@ colorama = "^0.4.5"
 pytest = "^7.1"
 
 [tool.poetry.scripts]
-datavault = "datavault.cli:main"
+datavault = "dihi_datavault.cli:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

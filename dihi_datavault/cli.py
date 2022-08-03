@@ -6,7 +6,7 @@ import click
 import colorama
 from colorama import Fore
 
-from datavault import DataVault, __version__
+from dihi_datavault import DataVault, __version__
 
 colorama.init()
 
