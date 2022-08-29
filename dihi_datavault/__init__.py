@@ -13,10 +13,10 @@ from cryptography.fernet import Fernet
 
 if sys.version_info < (3, 8):
     TypedDict = dict
-else: 
+else:
     from typing import TypedDict
 
-__version__ = "1.0.0"
+__version__ = "0.1.0"
 
 #
 # Helpers
@@ -66,6 +66,7 @@ def decrypt(key: str, fin: Union[str, Path], fout: Union[str, Path]):
             dec = fernet.decrypt(chunk)
             fo.write(dec)
 
+
 class VaultManifest(TypedDict):
     """
     A VaultManifest is a dictionary of files and their hashes.
@@ -108,14 +109,14 @@ class DataVault:
             for path in Path(path).rglob(
                 f"{DataVault.ENCRYPTED_NAMESPACE}/{DataVault.MANIFEST_FILENAME}"
             )
-            if DataVault.verify_manifest(path)
+            if DataVault._verify_manifest(path)
         ]
         vault_dirs = [Path(path).parent.parent for path in manifest_paths]
         vaults = [DataVault(path) for path in sorted(vault_dirs)]
         return vaults
 
     @staticmethod
-    def verify_manifest(vault_manifest_path: Union[str, Path]) -> bool:
+    def _verify_manifest(vault_manifest_path: Union[str, Path]) -> bool:
         """
         Verifies that the vault manifest is valid.
         """
@@ -141,6 +142,9 @@ class DataVault:
         access to it, they'll be able to decrypt all of your messages, and
         they'll also be able forge arbitrary messages that will be
         authenticated and decrypted.
+
+        Uses Fernet to generate a key. See:
+        https://cryptography.io/en/latest/fernet/
         """
         return Fernet.generate_key().decode("utf-8")
 
@@ -160,15 +164,17 @@ class DataVault:
         # Create vault storage paths
         self.root_path.mkdir(exist_ok=False)
         self.encrypted_path.mkdir(exist_ok=False)
-        self.__reset_manifest()
-        self.verify()
+        self._create_gitignore()
+        self._reset_manifest()
+        self._verify_or_explode()
 
     def encrypt(self, secret_key: str) -> None:
         """
         Encrypts all decrypted files in the data vault that have changed
         since the last encryption.
         """
-        self.verify()
+        self._create_gitignore()  # Just in case
+        self._verify_or_explode()
 
         changes = self.changes()
 
@@ -184,13 +190,14 @@ class DataVault:
 
         # Write the new manifest
         with open(self.vault_manifest_path, "w") as f:
-            json.dump(self.__next_manifest(), f, indent=2)
+            json.dump(self._next_manifest(), f, indent=2)
 
     def decrypt(self, secret_key: str) -> None:
         """
         Decrypts all the encrypted files in the data vault.
         """
-        self.verify()
+        self._create_gitignore()  # Just in case
+        self._verify_or_explode()
 
         # Delete all decrypted files
         for f in self.files():
@@ -199,12 +206,12 @@ class DataVault:
         for f in self.encrypted_files():
             decrypt(secret_key, self.encrypted_path / f, self.root_path / f)
 
-    def exists(self) -> bool:
+    def verify(self) -> bool:
         """
         Returns True if a valid vault exists for the given path.
         """
         try:
-            self.verify()
+            self._verify_or_explode()
             return True
         except:
             return False
@@ -219,7 +226,7 @@ class DataVault:
         # directory
         for f in os.listdir(self.root_path):
             # Skip the encrypted directory
-            if f == DataVault.ENCRYPTED_NAMESPACE:
+            if f in (DataVault.ENCRYPTED_NAMESPACE, ".gitignore"):
                 continue
             # Walk all other directories
             elif os.path.isdir(os.path.join(self.root_path, f)):
@@ -321,7 +328,7 @@ class DataVault:
         consider the file to have changed.
         """
         current_manifest = self.manifest()["files"]
-        next_manifest = self.__next_manifest()["files"]
+        next_manifest = self._next_manifest()["files"]
 
         updates = []
 
@@ -362,9 +369,9 @@ class DataVault:
             os.remove(os.path.join(self.encrypted_path, f))
         # You must clear the manifest otherwise the vault will
         # be invalid
-        self.__reset_manifest()
+        self._reset_manifest()
 
-    def verify(self) -> None:
+    def _verify_or_explode(self) -> None:
         """
         Verifies the vault has the correct structure and vault manifest.
         It also checks that all of the files in the manifest are encrypted.
@@ -377,9 +384,14 @@ class DataVault:
             raise FileNotFoundError(
                 f"Vault encrypted directory does not exist at given path: {self.encrypted_path}"
             )
-        if not DataVault.verify_manifest(self.vault_manifest_path):
+        if not DataVault._verify_manifest(self.vault_manifest_path):
             raise FileNotFoundError(
                 f"Vault manifest is invalid at given path: {self.vault_manifest_path}"
+            )
+
+        if not (self.root_path / ".gitignore").exists():
+            raise FileNotFoundError(
+                f"Vault .gitignore file does not exist at given path: {self.root_path / '.gitignore'}"
             )
 
         # All files in the manifest must be encrypted
@@ -393,7 +405,7 @@ class DataVault:
                 textwrap.deindent(
                     f"""
             Vault manifest contains files that are not encrypted: {missing_files}
-            
+
             >>> THIS SHOULD NOT HAPPEN AND IS CONSIDERED A SERIOUS ISSUE. <<<
 
             Check your vault directory {self.root_path} for the decrypted
@@ -406,7 +418,7 @@ class DataVault:
             1. Recreate the vault from scratch.
             2. Remove the files from the autogenerated vault manifest ({self.vault_manifest_path})
             and rerun the vault encryption.
-            
+
             If you do not need these files, you can simply delete them from the manifest.
             """
                 )
@@ -416,15 +428,23 @@ class DataVault:
     # Private helpers
     #
 
-    def __reset_manifest(self):
+    def _create_gitignore(self):
+        """
+        Creates a .gitignore file in the vault root directory.
+        """
+        with open(os.path.join(self.root_path, ".gitignore"), "w") as f:
+            f.write("/*\n")
+            f.write(f"!/{DataVault.ENCRYPTED_NAMESPACE}\n")
+
+    def _reset_manifest(self):
         """
         Generate an empty vault manifest
         """
         #
         with open(self.vault_manifest_path, "w") as f:
-            json.dump(self.__empty_vault_manifest(), f, indent=2)
+            json.dump(self._empty_vault_manifest(), f, indent=2)
 
-    def __empty_vault_manifest(self) -> VaultManifest:
+    def _empty_vault_manifest(self) -> VaultManifest:
         """
         Returns an empty vault config as a dict.
         """
@@ -434,7 +454,7 @@ class DataVault:
             "files": {},
         }
 
-    def __next_manifest(self) -> VaultManifest:
+    def _next_manifest(self) -> VaultManifest:
         """
         Returns the next version of the vault manifest that should be persisted
         after the next encryption.

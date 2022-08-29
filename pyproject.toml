@@ -1,8 +1,11 @@
 [tool.poetry]
 name = "dihi-datavault"
-version = "0.0.1"
-description = "Store encrypted files in your repository securely"
+version = "0.1.0"
+description = "Store sensitive data in your git repo"
 authors = ["Faraz Yashar <fny@duke.edu>"]
+license = "Proprietary"
+readme = "README.md"
+homepage = "https://github.com/dihi/datavault"
 
 [tool.poetry.dependencies]
 python = ">=3.7.2"

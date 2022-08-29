@@ -3,48 +3,59 @@
 [![PyPI version](https://badge.fury.io/py/dihi-datavault.svg)](https://badge.fury.io/py/dihi-datavault)
 [![Test](https://github.com/dihi/datavault/actions/workflows/test.yml/badge.svg)](https://github.com/dihi/datavault/actions/workflows/test.yml)
 
-Sometimes you'd like to store encrypted files in your repository securely.
-This package helps with that.
+Store sensitive data in your git repo.
 
 ## Installation
 
 Pick your poison:
 
- - `pip install dihi_datavault` then `datavault`
- - `poetry add dihi_datavault` then `poetry run datavault`
- - `pipx install dihi_datavault` then `pipx run datavault`
+ - `pip install dihi-datavault` then `datavault`
+ - `poetry add dihi-datavault` then `poetry run datavault`
+ - `pipx install dihi-datavault` then `pipx run datavault`
 
 ## Usage
 
+First, create a new vault.
+
 ```bash
-# Step 1: Create a new datavault
 datavault new path/to/vault
-# Not only will you get a vault, but you'll also get some fancy
-# instructions. *Follow them.*
+```
 
-# Step 2: Add some things to it
-echo "test" > path/to/vault/test.txt
+This command will...
 
-# Step 3: Inspect it
+    - Provide you with a secret to use when encrypting your files
+    - Create a folder at `path/to/vault` where you place files you wish to be encrypted
+    - Create a `path/to/vault/.encrypted` directory to store the encrypted files along with a manifest which tracks the state of files in the vault
+    - Create a `path/to/vault/.gitignore` file which will ignore the unencrypted files
+
+You're now free to add files to your new vault and encrypt them:
+
+```bash
+echo "apple" > path/to/vault/apple.txt
+echo "banana" > path/to/vault/banana.txt
 datavault inspect
-
-# Step 4: Encrypt it (yes you need the equals sign at the end of your key)
-export DATAVAULT_SECRET=o8qbhGg4OkF0dwYb8Kc3VYjinhaLGb57ZWz8DzAdWN4=
 datavault encrypt
+```
 
-# Now lets say you've just pulled the repo and have none of the original
-# files...
+You can also clear out the contents of the vault as needed...
 
-# Step 5: Decrypt the vault
-datavault decrypt
-
-# By default, datavault hunts for a vault to encrypt/decrypt/inspect,
-# you can specify the path as needed
-datavault encrypt path/to/vault
-datavault decrypt path/to/vault
-datavault inspect path/to/vault
-
-# You can also clear out the contents of the vault as needed
-datavault clear
+```bash
+datavault clear-decrypted
 datavault clear-encrypted
+```
+
+Now lets say you've just pulled the repo and have none of the original files...
+
+```bash
+datavault decrypt
+```
+
+## Development
+
+Useful commands:
+
+```
+ - `poetry run pytest` to run the tests
+ - `poetry version x.y.z` to bump the version
+ - `poetry publish -r testpypi` and `poetry publish -r testpypi` to test the deployment on pypi
 ```

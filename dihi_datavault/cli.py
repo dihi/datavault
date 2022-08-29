@@ -116,10 +116,7 @@ def main(ctx: click.Context, version, help):
 #
 @main.command()
 @click.argument("vault_path")
-@click.option(
-    "-f", '--force', is_flag=True, default=False, help="Skip interactive mode."
-)
-def new(vault_path, force):
+def new(vault_path):
     """
     Create a new data vault.
     """
@@ -128,89 +125,22 @@ def new(vault_path, force):
         exit(1)
 
     vault = DataVault(vault_path)
-    vault.create()
-
     secret = DataVault.generate_secret()
+    vault.create()
 
     display(
         f"""
-    Your vault has been created at '{vault_path}'.
+    {Fore.YELLOW}Your vault has been created at '{vault_path}'.{Fore.RESET}
     You can add files to your vault by adding them to that directory.
 
     To encrypt your vault, run:
-    DATAVAULT_SECRET={secret} datavault encrypt
+    {Fore.YELLOW}DATAVAULT_SECRET={secret} datavault encrypt{Fore.RESET}
 
-    You can also specify the vault path:
-    DATAVAULT_SECRET={secret} datavault encrypt '{vault_path}'
-    
     Keep the secret some place safe! If you lose it you'll no longer be able
     to decrypt your vaults; if anyone else gains access to it, they'll
     be able to decrypt the data.
     """
     )
-
-    ignoreline, keepline = datavault_gitignore_lines(vault)
-
-    if force:
-        display(
-            f"""
-        {Fore.YELLOW}
-        IMPORTANT
-
-        Add the following to your .gitignore file:
-
-        {ignoreline}
-        {keepline}
-
-        You risk exposing sensitive data if you don't do this.
-        {Fore.RESET}
-        """
-        )
-        exit(0)
-    
-    display(f"""
-    {Fore.CYAN}You need to add the following to your .gitignore file:
-
-    {ignoreline}
-    {keepline}{Fore.RESET}
-    """)
-    if not confirm("\nWould you like to add gitignore entries for your vault?"):
-        exit(0)
-
-    gitignore_lines_added = False
-    while not gitignore_lines_added:
-        gitignore_path = ask(
-            "Where would you like to add gitignore entries?", ".gitignore"
-        )
-        if not Path(gitignore_path).exists():
-            click.echo(f"Can't find a gitignore file at {gitignore_path}")
-            if confirm("Would like me to create one?"):
-                Path(gitignore_path).touch()
-            else:
-                continue
-        # Check that the lines are not already in the file
-        with open(gitignore_path, "r") as f:
-            gitignore_lines = f.readlines()
-
-        if ignoreline in gitignore_lines and keepline in gitignore_lines:
-            click.echo(f"{gitignore_path} already contains the lines needed!")
-            exit(0)
-
-        # Add the lines to the gitignore file
-        with open(gitignore_path, "a") as f:
-            if ignoreline in gitignore_lines:
-                f.write("\n")
-                f.write(keepline)
-            elif keepline in gitignore_lines:
-                f.write("\n")
-                f.write(ignoreline)
-            else:
-                f.write("\n")
-                f.write(ignoreline)
-                f.write("\n")
-                f.write(keepline)
-            f.write("\n")
-        gitignore_lines_added = True
 
 
 # Encrypt Command
@@ -320,9 +250,11 @@ def inspect(vault_path):
     "-f", "--force", help="Skip interactive mode", default=False, is_flag=True
 )
 @click.argument("vault_path", default=os.getcwd())
-def clear(vault_path, force):
+def clear_decrypted(vault_path, force):
     vault = find_vault(vault_path)
-    if force or confirm(f"Are you sure you want to clear the vault at '{vault_path}'?"):
+    if force or confirm(
+        f"Are you sure you want to clear the decrypted contents of the vault at '{vault_path}'?"
+    ):
         vault.clear()
         click.echo(f"{vault.root_path} cleared.")
     else:
