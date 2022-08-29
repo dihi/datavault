@@ -55,5 +55,6 @@ datavault decrypt
 Useful commands:
 
  - `poetry run pytest` to run the tests
- - `poetry version x.y.z` to bump the version
- - `poetry publish -r testpypi` and `poetry publish -r testpypi` to test the deployment on pypi
+ - `poetry publish -r testpypi` and `poetry publish -r testpypi` to test the deployment
+ - `poetry version X.Y.Z` to bump the version, then `git tag vX.Y.Z` and `git push --tags`
+ - `poetry publish` to release
