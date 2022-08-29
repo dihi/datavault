@@ -23,10 +23,10 @@ datavault new path/to/vault
 
 This command will...
 
-    - Provide you with a secret to use when encrypting your files
-    - Create a folder at `path/to/vault` where you place files you wish to be encrypted
-    - Create a `path/to/vault/.encrypted` directory to store the encrypted files along with a manifest which tracks the state of files in the vault
-    - Create a `path/to/vault/.gitignore` file which will ignore the unencrypted files
+  - Provide you with a secret to use when encrypting your files
+  - Create a folder at `path/to/vault` where you place files you wish to be encrypted
+  - Create a `path/to/vault/.encrypted` directory to store the encrypted files along with a manifest which tracks the state of files in the vault
+  - Create a `path/to/vault/.gitignore` file which will ignore the unencrypted files
 
 You're now free to add files to your new vault and encrypt them:
 
@@ -54,8 +54,6 @@ datavault decrypt
 
 Useful commands:
 
-```
  - `poetry run pytest` to run the tests
  - `poetry version x.y.z` to bump the version
  - `poetry publish -r testpypi` and `poetry publish -r testpypi` to test the deployment on pypi
-```
